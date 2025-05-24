@@ -1,0 +1,9 @@
+{
+  "merkleRoot": "0x3322f33946a3c503c916c8fc29768a547f01fa665e1eb22f9f66cf7e5a262012",
+  "whitelist": [
+    "0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf"
+  ],
+  "proofs": {
+    "0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf": []
+  }
+}

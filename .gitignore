@@ -13,3 +13,7 @@ docs/
 
 # Dotenv files
 .env
+
+# Node.js dependencies
+node_modules/
+package-lock.json
