@@ -5,11 +5,13 @@ pragma solidity ^0.8.20;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
+import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 
 
 contract MembershipCard is ERC721, Ownable {
     using Strings for uint256; // Importing the Strings library for converting uint256 to string
+    using EnumerableSet for EnumerableSet.UintSet;
 
     uint256 public currentTokenId;
     uint256 public totalSupply; // Set the total supply of NFTs
@@ -17,6 +19,7 @@ contract MembershipCard is ERC721, Ownable {
     bytes32 public merkleRoot; // Merkle root for whitelisting
     // tokenId => timestamp del stake (0 si no está stakeado)
     mapping(uint256 => uint256) public stakedAt;
+    EnumerableSet.UintSet private activeStakedTokens;
 
 
     event MintNFT(address userAddress_, uint256 tokenId_);
@@ -54,6 +57,7 @@ contract MembershipCard is ERC721, Ownable {
 
         stakedAt[tokenId] = block.timestamp;
 
+        activeStakedTokens.add(tokenId);
         emit Staked(msg.sender, tokenId);
     }
 
@@ -63,6 +67,7 @@ contract MembershipCard is ERC721, Ownable {
 
         stakedAt[tokenId] = 0;
 
+        activeStakedTokens.remove(tokenId);
         emit Unstaked(msg.sender, tokenId);
     }
 
@@ -87,4 +92,17 @@ contract MembershipCard is ERC721, Ownable {
         string memory baseURI = _baseURI();
         return bytes(baseURI).length > 0 ? string.concat(baseURI, tokenId.toString(), ".json") : "";
     }
+
+    function pickRandomStakerWinner() external view returns (address winner, uint256 winningTokenId) {
+        require(activeStakedTokens.length() > 0, "No stakers");
+
+        // Pseudo-random index
+        uint256 randomIndex = uint256(keccak256(abi.encodePacked(block.timestamp, block.prevrandao, block.number))) % activeStakedTokens.length();
+
+        uint256 tokenId = activeStakedTokens.at(randomIndex);
+        address owner = ownerOf(tokenId); // sigue siendo el dueño aunque esté stakeado
+
+        return (owner, tokenId);
+    }
+
 }

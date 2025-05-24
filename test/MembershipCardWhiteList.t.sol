@@ -86,4 +86,15 @@ contract MembershipCardWhitelistTest is Test {
         // Check the token URI
         assertEq(emptyBaseUriMembership.tokenURI(0), "");
     }
+
+    function testFuzzMintWhitelistShouldRevertForRandomAddresses(address fuzzedAddr) public {
+        // Solo permite la dirección whitelisted
+        vm.assume(fuzzedAddr != 0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf);
+
+        vm.startPrank(fuzzedAddr);
+        vm.expectRevert("Not whitelisted");
+        membership.mintWhitelist(invalidProof);
+        vm.stopPrank();
+    }
+
 }

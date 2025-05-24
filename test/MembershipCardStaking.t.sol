@@ -125,4 +125,12 @@ contract MembershipCardStakingTest is Test {
 
         assertEq(membership.ownerOf(0), attacker);
     }
+
+    function testFuzzStakeInvalidTokenId(uint256 tokenId) public {
+        vm.assume(tokenId != 0); // 0 ya lo has minteado
+        vm.prank(user);
+        vm.expectRevert(); // debería revertir con token inexistente
+        membership.stake(tokenId);
+    }
+
 }
